@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-var frontendUrl = builder.Configuration["FrontendUrl"];
+var frontendUrl = builder.Configuration["FrontendUrl"] ?? "";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
