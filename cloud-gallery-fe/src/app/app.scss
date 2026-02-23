@@ -1,0 +1,24 @@
+    .content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        width: 100%;
+        height: 100vh;
+
+    }
+
+    om-silk {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+
+    om-word-morph {
+        width: 100%;
+        white-space: nowrap;
+        z-index: 1;
+        text-align: center;
+    }

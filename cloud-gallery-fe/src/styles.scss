@@ -1,1 +1,31 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Orbitron:wght@700;900&display=swap');
+
+* {
+  font-family: 'Nunito', sans-serif;
+}
+
+html, body {
+ min-height: 100vh;
+}
+
+:root {
+  --bs-primary: #818cf8;
+  --bs-primary-rgb: 129, 140, 248;
+  --bs-primary-text-emphasis: #818cf8;
+  --bs-primary-bg-subtle: #1e1b4b;
+  --bs-primary-border-subtle: #4338ca;
+  --bs-link-color: #818cf8;
+  --bs-link-hover-color: #a5b4fc;
+
+  --bs-secondary: #94a3b8;
+  --bs-secondary-rgb: 148, 163, 184;
+  --bs-secondary-text-emphasis: #94a3b8;
+  --bs-secondary-bg-subtle: #1e2433;
+  --bs-secondary-border-subtle: #475569;
+}
+
+body {
+  background-color: #0d0a1e;
+  color: #e2e0f0;
+}
