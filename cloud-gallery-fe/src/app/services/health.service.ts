@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 export class HealthService {
   constructor(private http: HttpClient) {}
 
-  getHealth(): Observable<string> {
-    return this.http.get(`${environment.apiUrl}/health`, { responseType: 'text' });
+  getHealth(): Observable<any> {
+    return this.http.get(`${environment.apiUrl}/health`);
   }
 }

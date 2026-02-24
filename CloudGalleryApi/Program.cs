@@ -1,3 +1,5 @@
+using CloudGalleryApi.Context;
+using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var frontendUrl = builder.Configuration["FrontendUrl"] ?? "";
 builder.Services.AddCors(options =>
@@ -32,5 +35,12 @@ app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+// Migrate the database on startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+    db.Database.Migrate();
+}
 
 app.Run();

@@ -1,14 +1,21 @@
+using CloudGalleryApi.Context;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CloudGalleryApi.Controller;
 
 [ApiController]
 [Route("[controller]")]
-public class HealthController : ControllerBase
+public class HealthController(DataContext _db) : ControllerBase
 {
     [HttpGet]
-    public string Get()
+    public async Task<IActionResult> Get()
     {
-        return "Your backend is working :)";
+        bool isDbConnected = await _db.Database.CanConnectAsync();
+
+        return Ok(new
+        {
+            Backend = "Working :)",
+            Database = isDbConnected ? "Connected" : "Disconnected"
+        });
     }
 }

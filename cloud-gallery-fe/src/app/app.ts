@@ -12,14 +12,18 @@ import { errorContext } from 'rxjs/internal/util/errorContext';
 })
 export class App implements OnInit {
   protected readonly title = signal('cloud-gallery-fe');
-  healthStatus = signal('Checking...');
+  backendStatus = signal('Checking...');
+  databaseStatus = signal('Checking...');
 
   constructor(private healthService: HealthService) {}
 
   ngOnInit() {
     this.healthService.getHealth().subscribe({
-      next: (res) => this.healthStatus.set(res || 'Healthy'),
-      error: (err) => this.healthStatus.set('Unavailable: ' + JSON.stringify(err))
+      next: (res) => {
+        this.backendStatus.set(res.backend || 'Healthy')
+        this.databaseStatus.set(res.database || 'Unknown')
+      },
+      error: (err) => this.backendStatus.set('Unavailable: ' + JSON.stringify(err))
     });
   }
 }
