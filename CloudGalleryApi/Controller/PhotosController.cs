@@ -1,70 +1,67 @@
-﻿using CloudGalleryApi.Context;
-using CloudGalleryApi.Models;
+﻿using CloudGalleryApi.Models;
+using CloudGalleryApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace CloudGalleryApi.Controller;
 
+
 [Authorize]
 [ApiController]
-[Route("api/galleries/{galleryId}/[controller]")]
-public class PhotosController(DataContext _db) : ControllerBase
+ [Route("api/photos")]
+public class PhotosController(PhotoService service) : ControllerBase
 {
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetPhotos(int galleryId)
+    public async Task<IActionResult> GetPhotos([FromQuery] int galleryId)
     {
-        var photos = await _db.Photos
-            .Where(p => p.GalleryId == galleryId)
-            .Select(p => new { p.Id, p.Name, p.UploadedAt })
-            .ToListAsync();
-        return Ok(photos);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+        var photos = await service.GetPhotosAsync(galleryId, userId, userEmail);
+        // Csak publikus vagy jogosult galéria képeit adja vissza
+        return Ok(photos.Select(p => new { p.Id, p.Name, p.UploadedAt }));
     }
 
     [HttpGet("{id}/view")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetImage(int id)
+    public async Task<IActionResult> GetImage([FromQuery] int galleryId, [FromRoute] int id)
     {
-        var photo = await _db.Photos.FindAsync(id);
-        if (photo == null) return NotFound();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+        var photo = await service.GetPhotoAsync(id, userId, userEmail);
+        if (photo == null) return Forbid();
         return File(photo.ImageData, photo.ContentType);
     }
 
     [HttpPost]
-    public async Task<IActionResult> UploadPhoto(int galleryId, [FromForm] IFormFile file, [FromForm] string name)
+    public async Task<IActionResult> UploadPhoto([FromQuery] int galleryId, [FromForm] PhotoUploadRequest request)
     {
-        var gallery = await _db.Galleries.FindAsync(galleryId);
-        if (gallery == null || gallery.OwnerId != User.FindFirstValue(ClaimTypes.NameIdentifier))
-            return Forbid();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
 
         using var ms = new MemoryStream();
-        await file.CopyToAsync(ms);
+        await request.File.CopyToAsync(ms);
 
         var photo = new Photo
         {
-            GalleryId = galleryId,
-            Name = name.Length > 40 ? name[..40] : name,
+            Name = request.Name.Length > 40 ? request.Name[..40] : request.Name,
             ImageData = ms.ToArray(),
-            ContentType = file.ContentType,
-            UploadedAt = DateTime.UtcNow
+            ContentType = request.File.ContentType,
         };
 
-        _db.Photos.Add(photo);
-        await _db.SaveChangesAsync();
-        return Ok(new { photo.Id, photo.Name });
+        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+        var created = await service.UploadPhotoAsync(galleryId, photo, userId, userEmail);
+        if (created == null) return Forbid();
+        return Ok(new { created.Id, created.Name });
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeletePhoto(int galleryId, int id)
+    public async Task<IActionResult> DeletePhoto([FromQuery] int galleryId, [FromRoute] int id)
     {
-        var photo = await _db.Photos.Include(p => p.Gallery).FirstOrDefaultAsync(p => p.Id == id);
-        if (photo == null || photo.Gallery.OwnerId != User.FindFirstValue(ClaimTypes.NameIdentifier))
-            return Forbid();
-
-        _db.Photos.Remove(photo);
-        await _db.SaveChangesAsync();
-        return NoContent();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+        var ok = await service.DeletePhotoAsync(id, userId);
+        return ok ? NoContent() : Forbid();
     }
 }

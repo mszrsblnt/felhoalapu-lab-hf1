@@ -1,18 +1,21 @@
 using CloudGalleryApi.Context;
+using CloudGalleryApi.Setup;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+builder.Services.Configure<FormOptions>(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "CloudGallery API", Version = "v1" });
+    options.KeyLengthLimit = 4096;
+    options.ValueLengthLimit = int.MaxValue;
+    options.MultipartBodyLengthLimit = 104857600; // 100 MB
 });
+builder.Services.AddCustomOpenApi();
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddEntityFrameworkStores<DataContext>();
@@ -29,18 +32,26 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddScoped<CloudGalleryApi.Services.GalleryService>();
+builder.Services.AddScoped<CloudGalleryApi.Services.PhotoService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "CloudGallery API v1 (OpenAPI)");
+        options.RoutePrefix = "swagger";
+    });
 }
 
 app.UseCors("AllowFrontend");
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseHttpsRedirection();
 
 app.MapControllers();
