@@ -1,0 +1,16 @@
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1200">
+      <div *ngFor="let toast of toastService.toasts()" 
+           class="toast show mb-2" 
+           [class.border-success]="toast.type === 'success'"
+           [class.border-danger]="toast.type === 'danger'">
+        <div class="toast-header">
+          <strong class="me-auto" [style.color]="'var(--bs-' + toast.type + ')'">
+            {{ toast.title || 'Értesítés' }}
+          </strong>
+          <button type="button" class="btn-close" (click)="toastService.remove(toast)"></button>
+        </div>
+        <div class="toast-body">
+          {{ toast.message }}
+        </div>
+      </div>
+    </div>

@@ -1,0 +1,24 @@
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="glass-card p-5 shadow-lg" style="width: 100%; max-width: 420px;">
+    <h3 class="text-center mb-4 fw-bold" style="color: var(--bs-primary-light);">Belépés</h3>
+    
+    <form (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <label for="email" class="form-label">Email cím</label>
+        <input type="email" name="email" class="form-control" id="email" [(ngModel)]="email" placeholder="nev@pelda.hu">
+      </div>
+      
+      <div class="mb-4">
+        <label for="password" class="form-label">Jelszó</label>
+        <input type="password" name="password" class="form-control" id="password" [(ngModel)]="password" placeholder="••••••••">
+      </div>
+      
+      <button type="submit" class="btn btn-primary w-100 mb-3 py-2">Bejelentkezés</button>
+      
+      <div class="text-center mt-3">
+        <span class="text-secondary">Nincs még fiókod?</span>
+        <a [routerLink]="'/register'" class="text-decoration-none ms-1 fw-bold" style="color: var(--bs-primary-light);">Regisztrálj</a>
+      </div>
+    </form>
+  </div>
+</div>

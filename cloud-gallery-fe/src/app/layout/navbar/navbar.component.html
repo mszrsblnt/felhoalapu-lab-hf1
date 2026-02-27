@@ -1,0 +1,40 @@
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center gap-2" routerLink="/home">
+      <span class="fw-bold" style="color: var(--bs-primary);">CG</span>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="mainNav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-3 me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/home" routerLinkActive="active">Kezdőlap</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/galleries" routerLinkActive="active">Galériák</a>
+        </li>
+      </ul>
+
+      <div class="d-flex align-items-center" *ngIf="userEmail(); else loggedOut">
+        <div class="dropdown">
+          <button class="btn btn-outline-primary btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+            <span>{{ userEmail() }}</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="javascript:void(0)" (click)="logout()">Kijelentkezés</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <ng-template #loggedOut>
+        <div class="d-flex gap-2">
+          <a class="btn btn-outline-primary btn-sm" routerLink="/login">Belépés</a>
+          <a class="btn btn-primary btn-sm" routerLink="/register">Regisztráció</a>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</nav>

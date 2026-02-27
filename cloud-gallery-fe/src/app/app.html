@@ -1,7 +1,19 @@
-<div class="content">
-  <router-outlet></router-outlet>
-  <om-silk [speed]="0.03" [scale]="0.9" [color]="'#818cf8'"></om-silk>
-  <om-word-morph class="text-center fw-bold" [morphDelay]="1000" [words]="['The', 'new', 'Era', 'of', 'Gallery', '']"></om-word-morph>
+<div class="app-shell">
+  <om-silk class="silk-layer" [speed]="0.015" [scale]="0.9" [color]="getPrimaryColor()"></om-silk>
+
+  <div class="app-content glass-shell">
+    <app-navbar class="fixed-top"></app-navbar>
+
+    <main class="app-main pt-5 mt-2">
+      <router-outlet></router-outlet>
+    </main>
+
+    <footer class="app-footer text-center small text-secondary mt-auto">
+      <span class="me-3">Backend: {{ backendStatus() }}</span><br>
+      <span>Database: {{ databaseStatus() }}</span><br>
+      <span>TimeStamp: {{ timestamp() | date:'yyyy-MM-dd HH:mm:ss' }}</span>
+    </footer>
+  </div>
 </div>
-<div class="mb-2 small text-secondary mt-3">Backend: {{ backendStatus() }}</div>
-<div class="mb-2 small text-secondary mt-3">Database: {{ databaseStatus() }}</div>
+
+<app-toast-container></app-toast-container>

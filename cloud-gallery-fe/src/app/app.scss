@@ -1,24 +1,30 @@
-    .content {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        width: 100%;
-        height: 100vh;
+.silk-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
 
-    }
+.app-content {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-    om-silk {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-    }
+.glass-shell {
+  background: rgba(0, 0, 0, 0.089);
+}
 
-    om-word-morph {
-        width: 100%;
-        white-space: nowrap;
-        z-index: 1;
-        text-align: center;
-    }
+.app-main {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.app-footer {
+  padding: 0.75rem 1.5rem 1.25rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.65);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}

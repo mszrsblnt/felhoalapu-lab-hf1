@@ -14,8 +14,9 @@ public class HealthController(DataContext _db) : ControllerBase
 
         return Ok(new
         {
-            Backend = "Working :)",
-            Database = isDbConnected ? "Connected" : "Disconnected"
+            Backend = "Healthy",
+            Database = isDbConnected ? "Connected" : "Disconnected",
+            TimeStamp = DateTime.Now.ToLocalTime(),
         });
     }
 }
