@@ -17,6 +17,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             const newToken = auth.getToken();
             req = req.clone({ setHeaders: { Authorization: `Bearer ${newToken}` } });
             return next(req);
+          }),
+          catchError((refreshError) => {
+            auth.logout();
+            return throwError(() => refreshError);
           })
         );
       }
