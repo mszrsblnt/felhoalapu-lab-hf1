@@ -6,7 +6,8 @@ import { IdentityService } from '../services/identity.service';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(IdentityService);
   const token = auth.getToken();
-
+  
+  if (req.url.endsWith('/refresh')) return next(req);
   if (token) req = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
 
   return next(req).pipe(
