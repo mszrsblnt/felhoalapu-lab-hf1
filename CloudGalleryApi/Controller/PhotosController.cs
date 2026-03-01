@@ -9,7 +9,7 @@ namespace CloudGalleryApi.Controller;
 
 [Authorize]
 [ApiController]
- [Route("api/photos")]
+[Route("api/photos")]
 public class PhotosController(PhotoService service) : ControllerBase
 {
     [HttpGet]

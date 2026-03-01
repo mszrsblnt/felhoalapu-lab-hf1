@@ -9,8 +9,6 @@ public class DataContext : IdentityDbContext<IdentityUser>
 {
     public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
-
-    // Ide jönnek a tábláid, pl: 
     public DbSet<Photo> Photos { get; set; }
     public DbSet<Gallery> Galleries { get; set; }
     public DbSet<GalleryShare> GalleryShares { get; set; }

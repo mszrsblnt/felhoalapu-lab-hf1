@@ -14,7 +14,7 @@ public class GalleryService
 
     public async Task<List<Gallery>> GetGalleriesAsync(string? userId, string? userEmail, bool? isPublic, bool mine, bool sharedWithMe)
     {
-        // Bejelentkezetlen felhasználó: csak publikus galériák
+        // Bejelentkezetlen felhasználó, csak publikus galériák
         if (userId == null && userEmail == null)
             return await _db.Galleries.Where(g => g.IsPublic).ToListAsync();
 
@@ -30,7 +30,6 @@ public class GalleryService
         if (isPublic == true)
             return await _db.Galleries.Where(g => g.IsPublic).ToListAsync();
 
-        // Alapértelmezett: csak publikus, saját, vagy megosztott galériák (bejelentkezett felhasználónak)
         return await _db.Galleries
             .Include(g => g.Shares)
             .Where(g =>

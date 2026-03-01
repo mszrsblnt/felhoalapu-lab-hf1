@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { IdentityService } from '../../services/identity.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-register',
@@ -16,19 +17,21 @@ export class RegisterComponent implements OnInit {
 
   auth = inject(IdentityService);
   router = inject(Router);
+  toast = inject(ToastService);
 
   onSubmit() {
     if (this.password !== this.passwordConfirm) {
-      alert('A jelszavak nem egyeznek!');
+      this.toast.show('A jelszavak nem egyeznek!', 'danger', 'Hiba');
       return;
     }
 
     this.auth.register(this.email, this.password).subscribe({
       next: () => {
         alert('Sikeres regisztráció!');
+        this.toast.show('Sikeres regisztráció!', 'success', 'Rendszer');
         this.router.navigate(['/login']);
       },
-      error: (err) => alert('Hiba a regisztráció során!')
+      error: (err) => this.toast.show('Sikertelen regisztráció!', 'danger', 'Hiba')
     });
   }
 

@@ -18,11 +18,11 @@ public class PhotoService
         if (gallery == null)
             return new List<Photo>();
 
-        // Publikus galéria: bárki láthatja
+        // Publikus galéria, bárki láthatja
         if (gallery.IsPublic)
             return await _db.Photos.Where(p => p.GalleryId == galleryId).ToListAsync();
 
-        // Bejelentkezett felhasználó: csak saját vagy megosztott galéria
+        // Bejelentkezett felhasználó, csak saját vagy megosztott galéria
         if (userId != null)
         {
             if (gallery.OwnerId == userId)
@@ -30,7 +30,7 @@ public class PhotoService
             if (gallery.Shares.Any(s => s.UserEmail == userEmail))
                 return await _db.Photos.Where(p => p.GalleryId == galleryId).ToListAsync();
         }
-        // Egyébként nem publikus, nem saját, nem megosztott: nincs jogosultság
+
         return new List<Photo>();
     }
 

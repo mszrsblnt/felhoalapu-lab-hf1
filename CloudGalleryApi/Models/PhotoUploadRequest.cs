@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http;
-
 namespace CloudGalleryApi.Models;
 
 public class PhotoUploadRequest

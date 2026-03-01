@@ -13,7 +13,7 @@ import { ToastService } from '../../services/toast.service';
 export class LoginComponent implements OnInit {
   email = '';
   password = '';
-  
+
   auth = inject(IdentityService);
   router = inject(Router);
   toast = inject(ToastService);

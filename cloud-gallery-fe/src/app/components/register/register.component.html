@@ -18,7 +18,7 @@
         <input type="password" name="passwordConfirm" [(ngModel)]="passwordConfirm" class="form-control" id="password-confirm" placeholder="••••••••">
       </div>
       
-      <button type="submit" class="btn btn-primary w-100 mb-3 py-2">Regisztráció</button>
+      <button type="submit" class="btn btn-primary w-100 mb-3 py-2" [disabled]="email.length==0 || password.length==0 || passwordConfirm.length==0 || password !== passwordConfirm">Regisztráció</button>
       
       <div class="text-center mt-3">
         <span class="text-secondary">Már van fiókod?</span>

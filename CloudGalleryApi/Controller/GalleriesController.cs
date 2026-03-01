@@ -1,5 +1,5 @@
-﻿using CloudGalleryApi.Services;
-using CloudGalleryApi.Models;
+﻿using CloudGalleryApi.Models;
+using CloudGalleryApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
