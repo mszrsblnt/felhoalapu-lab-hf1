@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Gallery } from '../models/gallery.model';
 import { GalleryShare } from '../models/gallery-share.model';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../environments/environment';
 import { buildQueryString } from '../utils/query-string-builder';
 
 @Injectable({ providedIn: 'root' })
