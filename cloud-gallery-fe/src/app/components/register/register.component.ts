@@ -27,7 +27,6 @@ export class RegisterComponent implements OnInit {
 
     this.auth.register(this.email, this.password).subscribe({
       next: () => {
-        alert('Sikeres regisztráció!');
         this.toast.show('Sikeres regisztráció!', 'success', 'Rendszer');
         this.router.navigate(['/login']);
       },

@@ -1,5 +1,131 @@
-<div class="gallery-container">
-  <p>
-    Gallery works!
-  </p>
+<div class="container py-4 gallery-page-container">
+
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <h2 class="fw-bold mb-0 text-accent">Albumok</h2>
+    @if (isAuthenticated()) {
+      <button class="btn btn-primary btn-sm px-3" (click)="createModalOpen = true">
+        <i class="bi bi-plus-lg me-1"></i>Új galéria
+      </button>
+    }
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="d-flex gap-2 mb-4 flex-wrap">
+    @if (isAuthenticated()) {
+      <button class="btn btn-sm" [class.btn-primary]="filter === 'all'" [class.btn-outline-primary]="filter !== 'all'"
+              (click)="setFilter('all')">
+        <i class="bi bi-grid me-1"></i>Összes megtekintése
+      </button>
+      <button class="btn btn-sm" [class.btn-primary]="filter === 'mine'" [class.btn-outline-primary]="filter !== 'mine'"
+              (click)="setFilter('mine')">
+        <i class="bi bi-person me-1"></i>Saját
+      </button>
+      <button class="btn btn-sm" [class.btn-primary]="filter === 'shared'" [class.btn-outline-primary]="filter !== 'shared'"
+      (click)="setFilter('shared')">
+      <i class="bi bi-share me-1"></i>Megosztott velem
+    </button>
+  }
+  <button class="btn btn-sm" [class.btn-primary]="filter === 'public'" [class.btn-outline-primary]="filter !== 'public'"
+          (click)="setFilter('public')">
+    <i class="bi bi-globe2 me-1"></i>Nyilvános
+  </button>
+  </div>
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="text-center py-5 text-secondary">
+      <i class="bi bi-arrow-clockwise spin fs-2 d-block mb-2"></i>Betöltés...
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!loading && galleries.length === 0) {
+    <div class="glass-card p-5 text-center text-secondary">
+      <i class="bi bi-images fs-1 d-block mb-3 empty-icon"></i>
+      <p class="mb-0">Nincs megjeleníthető galéria.</p>
+      @if (isAuthenticated()) {
+        <p class="mt-2">Hozz létre egy új galériát!</p>
+      }
+    </div>
+  }
+
+  <!-- Gallery Grid -->
+  @if (!loading && galleries.length > 0) {
+    <div class="gallery-grid">
+      @for (gallery of galleries; track gallery.id) {
+        <div class="gallery-card glass-card">
+          <button class="gallery-open-btn" (click)="openGallery(gallery.id)" [attr.aria-label]="gallery.name + ' galéria megnyitása'">
+            <div class="gallery-thumb d-flex align-items-center justify-content-center">
+              @if (coverUrls.get(gallery.id)) {
+                <img [src]="coverUrls.get(gallery.id)" class="gallery-cover" alt="" />
+              } @else {
+                <i class="bi bi-images gallery-icon"></i>
+              }
+            </div>
+            <div class="gallery-info p-3">
+              <h6 class="fw-bold mb-1 gallery-name" [title]="gallery.name">{{ gallery.name }}</h6>
+              <div class="d-flex align-items-center justify-content-between">
+                <small class="text-secondary">
+                  <i class="bi bi-clock me-1"></i>{{ gallery.createdAt | date:'yyyy.MM.dd. HH:mm' }}
+                </small>
+                <div class="gallery-badges">
+                  @if (gallery.sharedWithMe) {
+                    @if (gallery.sharedCanEdit) {
+                      <span class="badge-shared-edit"><span class="badge-icon"><i class="bi bi-pencil"></i></span><span class="badge-label">Szerkeszthető</span></span>
+                    } @else {
+                      <span class="badge-shared-read"><span class="badge-icon"><i class="bi bi-eye"></i></span><span class="badge-label">Megosztott</span></span>
+                    }
+                  } @else if (gallery.isOwner) {
+                    <span class="badge-owner"><span class="badge-icon"><i class="bi bi-person-fill"></i></span><span class="badge-label">Saját</span></span>
+                  } @else {
+                    <span class="badge-viewer"><span class="badge-icon"><i class="bi bi-person"></i></span><span class="badge-label">Megtekintő</span></span>
+                  }
+                  @if (gallery.isPublic) {
+                    <span class="badge-public"><span class="badge-icon"><i class="bi bi-globe2"></i></span><span class="badge-label">Nyilvános</span></span>
+                  } @else {
+                    <span class="badge-private"><span class="badge-icon"><i class="bi bi-lock"></i></span><span class="badge-label">Privát</span></span>
+                  }
+                </div>
+              </div>
+            </div>
+          </button>
+        </div>
+      }
+    </div>
+  }
 </div>
+
+<!-- ═══════════════ ÚJ GALÉRIA MODAL ═══════════════ -->
+@if (createModalOpen && isAuthenticated()) {
+  <div class="modal-overlay" (click)="closeCreateModal()">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-panel-header">
+        <i class="bi bi-folder-plus me-2 text-accent"></i>
+        <span class="modal-panel-title">Új galéria létrehozása</span>
+        <button class="modal-panel-close" (click)="closeCreateModal()" title="Bezárás">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-panel-body">
+        <div class="mb-3">
+          <label class="form-label">Galéria neve</label>
+          <input type="text" class="form-control" [(ngModel)]="newGalleryName"
+                 placeholder="Pl. Nyári fotók 2025" maxlength="100" />
+        </div>
+        <div class="mb-4">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="publicSwitch" [(ngModel)]="newGalleryPublic" />
+            <label class="form-check-label" for="publicSwitch">Nyilvános</label>
+          </div>
+        </div>
+        <div class="d-flex gap-2 justify-content-end">
+          <button class="btn" (click)="closeCreateModal()">Mégse</button>
+          <button class="btn btn-primary" (click)="createGallery()" [disabled]="!newGalleryName.trim()">
+            <i class="bi bi-check2 me-1"></i>Létrehozás
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

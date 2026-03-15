@@ -7,6 +7,7 @@ export const routes: Routes = [
   { path: 'register', loadComponent: () => import('./components/register/register.component').then(m => m.RegisterComponent) },
   { path: 'home', loadComponent: () => import('./components/home/home.component').then(m => m.HomeComponent) },
   { path: 'galleries', loadComponent: () => import('./components/gallery/gallery.component').then(m => m.GalleryComponent) },
+  { path: 'galleries/:id', loadComponent: () => import('./components/gallery-detail/gallery-detail.component').then(m => m.GalleryDetailComponent) },
 
   { path: '**', redirectTo: 'home' },
 ];

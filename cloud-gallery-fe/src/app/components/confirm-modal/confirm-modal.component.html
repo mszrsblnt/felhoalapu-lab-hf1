@@ -1,0 +1,24 @@
+@if (confirmService.state().visible) {
+  <div class="modal-overlay" (click)="confirmService.cancel()">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-panel-header">
+        <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>
+        <span class="modal-panel-title">Megerősítés</span>
+        <button class="modal-panel-close" (click)="confirmService.cancel()" title="Mégse">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-panel-body">
+        <p class="confirm-message mb-4">{{ confirmService.state().message }}</p>
+        <div class="d-flex gap-2 justify-content-end">
+          <button class="btn btn-sm btn-outline-light" (click)="confirmService.cancel()">
+            {{ confirmService.state().cancelLabel }}
+          </button>
+          <button class="btn btn-sm btn-danger" (click)="confirmService.confirm()">
+            <i class="bi bi-trash3 me-1"></i>{{ confirmService.state().okLabel }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

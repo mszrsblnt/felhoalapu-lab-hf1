@@ -1,0 +1,297 @@
+<div class="container py-4">
+
+  <!-- Drag overlay -->
+  @if (isDragging) {
+    <div class="drag-overlay">
+      <i class="bi bi-cloud-upload drag-overlay-icon"></i>
+      <div class="drag-overlay-text">Húzd ide a képeket a feltöltéshez</div>
+      <div class="drag-overlay-sub">Egyszerre több fájl is feltölthető</div>
+    </div>
+  }
+
+  <!-- Page Header -->
+  <div class="page-header glass-card d-flex align-items-center gap-3 mb-4 px-4 py-3 flex-wrap">
+    <a routerLink="/galleries" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>Vissza
+    </a>
+    <h2 class="fw-bold mb-0 flex-grow-1 text-accent">
+      {{ gallery?.name ?? 'Galéria' }}
+    </h2>
+    @if (gallery) {
+      <span class="visibility-badge" [class.visibility-badge--public]="gallery.isPublic"
+            [class.visibility-badge--private]="!gallery.isPublic">
+        @if (gallery.isPublic) {
+          <i class="bi bi-globe2 me-1"></i>Nyilvános
+        } @else {
+          <i class="bi bi-lock me-1"></i>Privát
+        }
+      </span>
+      @if (sharedWithMe) {
+        @if (myShareCanEdit) {
+          <span class="visibility-badge visibility-badge--shared-edit">
+            <i class="bi bi-pencil me-1"></i>Megosztott, szerkeszthető
+          </span>
+        } @else {
+          <span class="visibility-badge visibility-badge--shared-read">
+            <i class="bi bi-eye me-1"></i>Megosztott, olvasható 
+          </span>
+        }
+      }
+    }
+    @if (isOwner) {
+      <button class="btn btn-sm btn-outline-light" (click)="openEdit()" title="Galéria szerkesztése">
+        <i class="bi bi-pencil me-1"></i>Szerkesztés
+      </button>
+      <button class="btn btn-sm btn-outline-light" (click)="openShares()" title="Megosztás kezelése">
+        <i class="bi bi-share me-1"></i>Megosztás
+      </button>
+      <button class="btn btn-sm btn-outline-danger" (click)="deleteGallery()" title="Album törlése">
+        <i class="bi bi-trash3 me-1"></i>Törlés
+      </button>
+    }
+  </div>
+
+  <!-- Photo List -->
+  <div class="glass-card">
+    <!-- Sort Header -->
+    <div class="photo-list-header d-flex align-items-center px-4 py-3">
+      <div class="flex-grow-1 d-flex gap-2">
+        <button class="sort-btn" [class.active]="sortBy === 'name'" (click)="toggleSort('name')">
+          <i class="bi bi-sort-alpha-down me-1"></i>Név
+          @if (sortBy === 'name') {
+            <i class="bi" [class.bi-arrow-up]="sortDesc" [class.bi-arrow-down]="!sortDesc"></i>
+          }
+        </button>
+        <button class="sort-btn" [class.active]="sortBy === 'date'" (click)="toggleSort('date')">
+          <i class="bi bi-calendar3 me-1"></i>Feltöltés dátuma
+          @if (sortBy === 'date') {
+            <i class="bi" [class.bi-arrow-up]="sortDesc" [class.bi-arrow-down]="!sortDesc"></i>
+          }
+        </button>
+      </div>
+      <div class="col-actions text-secondary actions-header-label">Műveletek</div>
+    </div>
+
+    <!-- Loading -->
+    @if (loading) {
+      <div class="text-center py-5 text-secondary">
+        <i class="bi bi-arrow-repeat spin fs-2 d-block mb-2"></i>Betöltés...
+      </div>
+    }
+
+    <!-- Empty -->
+    @if (!loading && photos.length === 0) {
+      <div class="text-center py-5 text-secondary">
+        <i class="bi bi-camera fs-1 d-block mb-2 empty-icon"></i>
+        <p class="mb-0">Nincs még kép ebben a galériában.</p>
+      </div>
+    }
+
+    <!-- Photo Rows -->
+    @if (!loading && photos.length > 0) {
+    @for (photo of photos; track photo.id) {
+      <div class="photo-row d-flex align-items-center">
+        <button class="photo-row-main" (click)="viewPhoto(photo)" [attr.aria-label]="photo.name + ' megnyitása'">
+          <div class="photo-thumb me-3">
+            <i class="bi bi-image"></i>
+          </div>
+          <div class="text-start">
+            <div class="photo-name fw-semibold">{{ photo.name }}</div>
+            <div class="photo-date text-secondary small">
+              <i class="bi bi-clock me-1"></i>{{ photo.uploadedAt | date:'yyyy-MM-dd HH:mm' }}
+            </div>
+          </div>
+        </button>
+        <div class="col-actions d-flex gap-2 pe-3">
+          <button class="btn btn-sm btn-outline-primary" (click)="viewPhoto(photo)">
+            <i class="bi bi-eye me-1"></i>Megtekint
+          </button>
+          @if (canDelete) {
+            <button class="btn btn-sm btn-outline-danger" title="Kép törlése" (click)="deletePhoto(photo, $event)">
+              <i class="bi bi-trash3"></i>
+            </button>
+          }
+        </div>
+      </div>
+    }
+    }
+    <!-- Upload trigger row (always last if allowed) -->
+    @if (canUpload) {
+      <button class="photo-row upload-trigger-row w-100 d-flex align-items-center justify-content-center gap-2 py-3"
+              (click)="openUploadModal()">
+        <i class="bi bi-cloud-upload"></i>
+        <span>Kép feltöltése</span>
+      </button>
+    }
+
+    <div class="photo-list-footer"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ UPLOAD MODAL ═══════════════════════════════════ -->
+@if (uploadModalOpen) {
+  <div class="modal-overlay" (click)="closeUploadModal()">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-panel-header">
+        <i class="bi bi-cloud-upload me-2 text-accent"></i>
+        <span class="modal-panel-title">Kép feltöltése</span>
+        <button class="modal-panel-close" (click)="closeUploadModal()" title="Bezárás">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-panel-body">
+        <div class="mb-3">
+          <label class="form-label">Kép neve</label>
+          <input type="text" class="form-control" [(ngModel)]="uploadName" maxlength="40"
+                 placeholder="Kép neve..." />
+          <div class="form-text text-secondary">{{ uploadName.length }}/40 karakter</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Fájl</label>
+          <input type="file" class="form-control" accept="image/*" multiple #fileInput
+                 title="Válassz ki egy vagy több képfájlt"
+                 (change)="onFileChange($event)" />
+        </div>
+        @if (uploadPreviewUrl) {
+          <div class="mb-3">
+            <img [src]="uploadPreviewUrl" class="upload-preview" alt="Előnézet" />
+          </div>
+        }
+        <div class="d-flex gap-2 justify-content-end">
+          <button class="btn" (click)="closeUploadModal()">Mégse</button>
+          <button class="btn btn-primary" (click)="upload()"
+                  [disabled]="!uploadFile || !uploadName.trim()">
+            <i class="bi bi-cloud-upload me-1"></i>Feltöltés
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════════════ EDIT MODAL ════════════════════════════════════ -->
+@if (editModalOpen && isOwner) {
+  <div class="modal-overlay" (click)="cancelEdit()">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-panel-header">
+        <i class="bi bi-pencil me-2 text-accent"></i>
+        <span class="modal-panel-title">Galéria szerkesztése</span>
+        <button class="modal-panel-close" (click)="cancelEdit()" title="Bezárás">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-panel-body">
+        <div class="mb-3">
+          <label class="form-label">Galéria neve</label>
+          <input type="text" class="form-control" [(ngModel)]="editName" maxlength="80"
+                 placeholder="Galéria neve..." />
+        </div>
+        <div class="mb-4">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="editPublicSwitch"
+                   [(ngModel)]="editPublic" />
+            <label class="form-check-label" for="editPublicSwitch">Nyilvános</label>
+          </div>
+        </div>
+        <div class="d-flex gap-2 justify-content-end">
+          <button class="btn" (click)="cancelEdit()">Mégse</button>
+          <button class="btn btn-primary" (click)="saveEdit()"
+                  [disabled]="saving || !editName.trim()">
+            @if (saving) {
+              <i class="bi bi-arrow-repeat spin me-1"></i>Mentés...
+            } @else {
+              <i class="bi bi-check-lg me-1"></i>Mentés
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════════════ SHARE MODAL ══════════════════════════════════ -->
+@if (shareModalOpen && isOwner) {
+  <div class="modal-overlay" (click)="closeShares()">
+    <div class="modal-panel modal-panel--wide" (click)="$event.stopPropagation()">
+      <div class="modal-panel-header">
+        <i class="bi bi-share me-2 text-accent"></i>
+        <span class="modal-panel-title">Megosztás</span>
+        <button class="modal-panel-close" (click)="closeShares()" title="Bezárás">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-panel-body">
+
+        @if (sharesLoading) {
+          <div class="text-secondary mb-3"><i class="bi bi-arrow-repeat spin me-1"></i>Betöltés...</div>
+        }
+        @if (!sharesLoading && shares.length === 0) {
+          <p class="text-secondary mb-3">Nincs megosztva senkivel.</p>
+        }
+        @for (share of shares; track share.id) {
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="bi bi-person-circle text-accent"></i>
+            <span class="flex-grow-1">{{ share.userEmail }}</span>
+            <span class="badge text-white" [class.bg-primary]="share.canEdit" [class.bg-dark]="!share.canEdit">
+              {{ share.canEdit ? 'Szerkeszthet' : 'Csak olvasás' }}
+            </span>
+            <button class="btn btn-sm btn-outline-danger" title="Megosztás törlése"
+                    (click)="removeShare(share)">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        }
+
+        <hr class="my-3" />
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <input type="email" class="form-control share-email-input" [(ngModel)]="shareEmail"
+                 placeholder="felhasznalo@example.com" />
+          <div class="form-check form-switch mb-0 flex-shrink-0">
+            <input class="form-check-input" type="checkbox" id="shareCanEditSwitch"
+                   [(ngModel)]="shareCanEdit" />
+            <label class="form-check-label text-nowrap" for="shareCanEditSwitch">Szerkeszthet</label>
+          </div>
+          <button class="btn btn-primary flex-shrink-0" (click)="addShare()"
+                  [disabled]="addingShare || !shareEmail.trim()">
+            @if (addingShare) {
+              <i class="bi bi-arrow-repeat spin me-1"></i>
+            } @else {
+              <i class="bi bi-plus-lg me-1"></i>Hozzáad
+            }
+          </button>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+          <button class="btn" (click)="closeShares()">
+            <i class="bi bi-x-lg me-1"></i>Bezár
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════════════ LIGHTBOX ═════════════════════════════════════ -->
+@if (viewerOpen) {
+  <div class="lightbox-overlay" (click)="closeViewer()">
+    <div class="lightbox-content" (click)="$event.stopPropagation()">
+      <div class="lightbox-header">
+        <i class="bi bi-image me-2 lightbox-icon"></i>
+        <span class="lightbox-title">{{ viewerPhotoName }}</span>
+        <button class="lightbox-close" title="Bezárás" (click)="closeViewer()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="lightbox-body d-flex align-items-center justify-content-center">
+        @if (viewerLoading) {
+          <div class="text-secondary text-center">
+            <i class="bi bi-arrow-repeat spin fs-3 d-block mb-2"></i>Betöltés...
+          </div>
+        }
+        @if (!viewerLoading && viewerUrl) {
+          <img [src]="viewerUrl" class="lightbox-img" [alt]="viewerPhotoName" [title]="viewerPhotoName" />
+        }
+      </div>
+    </div>
+  </div>
+}

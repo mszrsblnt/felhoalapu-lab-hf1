@@ -5,6 +5,9 @@ export interface Gallery {
   createdAt: string;
   isPublic: boolean;
   ownerId: string;
+  isOwner?: boolean;
+  sharedWithMe?: boolean;
+  sharedCanEdit?: boolean;
   photos: Photo[];
   shares: GalleryShare[];
 }

@@ -1,26 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Orbitron:wght@700;900&display=swap');
+@import url('https://fonts.googleapi002002700s.com/css2?family=Nunito:wght@400;600;700&family=Orbitron:wght@700;900&display=swap');
+$brand: #4959ea;
+
+// Compile-time levezetések SCSS függvényekkel
+$brand-light:     lighten(saturate($brand, 8%), 20%);
+$bg:              mix(black, $brand, 95%);
+$glass-base:      mix(black, $brand, 91%);
+$glass-light:     mix(black, $brand, 83%);
+$text-primary:    mix(white, $brand, 87%);
+$text-secondary:  mix(white, $brand, 60%);
+$slate:           mix(white, $brand, 52%);
+$scrollbar:       mix(black, $brand, 52%);
 
 :root {
-  /* Színek */
-  --bs-primary: #4c5eff;
-  --bs-primary-rgb: 129, 140, 248;
-  --bs-primary-light: #a5b4fc;
-  
-  --bg-body: #0d0a1e;
-  --text-primary: #e2e0f0;
-  --text-secondary: #b3b3c7;
-  --text-white: #ffffff;
-  
-  --glass-base-rgb: 15, 23, 42;
-  --glass-light-rgb: 30, 41, 59;
-  --slate-rgb: 148, 163, 184;
-  --scrollbar-thumb: #475569;
+  --bs-primary:      #{$brand};
+  --bs-primary-rgb:  #{red($brand)}, #{green($brand)}, #{blue($brand)};
+  --bs-primary-light: #{$brand-light};
+
+  --bg-body:         #{$bg};
+  --text-primary:    #{$text-primary};
+  --text-secondary:  #{$text-secondary};
+  --text-white:      #ffffff;
+
+  --glass-base-rgb:  #{red($glass-base)}, #{green($glass-base)}, #{blue($glass-base)};
+  --glass-light-rgb: #{red($glass-light)}, #{green($glass-light)}, #{blue($glass-light)};
+  --slate-rgb:       #{red($slate)}, #{green($slate)}, #{blue($slate)};
+  --scrollbar-thumb: #{$scrollbar};
 
   /* Formák és szegélyek */
   --bs-border-radius-sm: 8px;
   --bs-border-radius: 12px;
   --bs-border-radius-lg: 24px;
-  --bs-border-color: rgba(var(--bs-primary-rgb), 0.18);
+  --bs-border-color: rgba(var(--bs-primary-rgb), 0.22);
 }
 
 * { font-family: 'Nunito', sans-serif; }
@@ -236,4 +246,44 @@ html, body { min-height: 100vh; background-color: var(--bg-body); color: var(--t
 
 ::placeholder {
   color: rgba(179, 179, 199, 0.5) !important;
+}
+
+/* --- Form Check / Switch --- */
+.form-check-input {
+  background-color: rgba(var(--glass-light-rgb), 0.7);
+  border: 1.5px solid rgba(var(--bs-primary-rgb), 0.35);
+}
+.form-check-input:checked {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+.form-check-label { color: var(--text-secondary); }
+
+/* --- Light Button --- */
+.btn-outline-light {
+  border: 1.5px solid rgba(var(--slate-rgb), 0.5);
+  color: var(--text-primary);
+  background: transparent;
+}
+.btn-outline-light:hover,
+.btn-outline-light:focus,
+.btn-outline-light:active {
+  background: rgba(var(--slate-rgb), 0.12) !important;
+  color: var(--text-white) !important;
+  border-color: rgba(var(--slate-rgb), 0.8) !important;
+  box-shadow: 0 4px 16px rgba(var(--slate-rgb), 0.15);
+  transform: translateY(-1px);
+}
+
+/* --- Danger Button --- */
+.btn-outline-danger {
+  border: 1.5px solid #ef4444;
+  color: #f87171;
+  background: transparent;
+}
+.btn-outline-danger:hover, .btn-outline-danger:focus {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  border-color: #ef4444;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.18);
 }

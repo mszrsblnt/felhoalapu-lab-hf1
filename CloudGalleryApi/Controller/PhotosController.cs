@@ -1,4 +1,5 @@
-﻿using CloudGalleryApi.Models;
+﻿using CloudGalleryApi.Mappers;
+using CloudGalleryApi.Models;
 using CloudGalleryApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,13 +15,23 @@ public class PhotosController(PhotoService service) : ControllerBase
 {
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetPhotos([FromQuery] int galleryId)
+    public async Task<IActionResult> GetPhotos([FromQuery] int galleryId, [FromQuery] string? sortBy, [FromQuery] bool? sortDesc)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var userEmail = User.FindFirstValue(ClaimTypes.Email);
-        var photos = await service.GetPhotosAsync(galleryId, userId, userEmail);
-        // Csak publikus vagy jogosult galéria képeit adja vissza
-        return Ok(photos.Select(p => new { p.Id, p.Name, p.UploadedAt }));
+        var photos = await service.GetPhotosAsync(galleryId, userId, userEmail, sortBy ?? "date", sortDesc ?? true);
+        return Ok(photos.ToDto());
+    }
+
+    [HttpGet("cover")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetCoverImage([FromQuery] int galleryId)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+        var photo = await service.GetCoverPhotoAsync(galleryId, userId, userEmail);
+        if (photo == null) return NotFound();
+        return File(photo.ImageData, photo.ContentType);
     }
 
     [HttpGet("{id}/view")]
@@ -53,7 +64,7 @@ public class PhotosController(PhotoService service) : ControllerBase
         var userEmail = User.FindFirstValue(ClaimTypes.Email);
         var created = await service.UploadPhotoAsync(galleryId, photo, userId, userEmail);
         if (created == null) return Forbid();
-        return Ok(new { created.Id, created.Name });
+        return Ok(created.ToDto());
     }
 
     [HttpDelete("{id}")]
@@ -61,7 +72,8 @@ public class PhotosController(PhotoService service) : ControllerBase
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
-        var ok = await service.DeletePhotoAsync(id, userId);
+        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+        var ok = await service.DeletePhotoAsync(id, userId, userEmail);
         return ok ? NoContent() : Forbid();
     }
 }

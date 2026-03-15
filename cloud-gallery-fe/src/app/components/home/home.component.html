@@ -1,13 +1,57 @@
 <div class="container py-5">
   <div class="glass-card p-5 text-center shadow-lg">
-    <h1 class="fw-bold mb-4" style="color: var(--bs-primary-light);">Üdvözlünk!</h1>
-    <p class="lead text-secondary mb-5">
-      Fedezd fel a legújabb alkotásokat, vagy töltsd fel a sajátjaidat.
-    </p>
-    
-    <div class="d-flex justify-content-center gap-3 flex-wrap">
-      <a routerLink="/galleries" class="btn btn-primary px-4 py-2">Galériák böngészése</a>
-      <a routerLink="/login" class="btn btn-outline-primary px-4 py-2">Bejelentkezés</a>
+    <h1 class="fw-bold mb-3" style="color: var(--bs-primary-light);">Cloud Gallery</h1>
+
+    @if (isAuthenticated()) {
+      <p class="lead text-secondary mb-4">
+        Üdvözlünk, <strong style="color: var(--bs-primary-light);">{{ userEmail() }}</strong>!<br>
+        Kezeld galériáidat és képeidet.
+      </p>
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a routerLink="/galleries" class="btn btn-primary px-4 py-2">
+          <i class="bi bi-folder2-open me-2"></i>Galériáim
+        </a>
+        <a routerLink="/galleries" class="btn btn-outline-primary px-4 py-2">
+          <i class="bi bi-globe2 me-2"></i>Nyilvános galériák
+        </a>
+      </div>
+    } @else {
+      <p class="lead text-secondary mb-4">
+        Fedezd fel a legújabb alkotásokat, vagy töltsd fel a sajátjaidat.<br>
+        <span class="small">A feltöltéshez és törléshez bejelentkezés szükséges.</span>
+      </p>
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a routerLink="/galleries" class="btn btn-primary px-4 py-2">
+          <i class="bi bi-images me-2"></i>Galériák böngészése
+        </a>
+        <a routerLink="/login" class="btn btn-outline-primary px-4 py-2">Bejelentkezés</a>
+        <a routerLink="/register" class="btn btn-outline-primary px-4 py-2">Regisztráció</a>
+      </div>
+    }
+  </div>
+
+  <!-- Feature Cards -->
+  <div class="row g-4 mt-2">
+    <div class="col-md-4">
+      <div class="glass-card p-4 h-100 text-center">
+        <div class="fs-1 mb-3 text-accent"><i class="bi bi-cloud-upload"></i></div>
+        <h5 class="fw-bold mb-2" style="color: var(--bs-primary-light);">Feltöltés</h5>
+        <p class="text-secondary mb-0 small">Tölts fel képeket galériáidba, adj nekik nevet és tekintsd meg bármikor.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="glass-card p-4 h-100 text-center">
+        <div class="fs-1 mb-3 text-accent"><i class="bi bi-sort-down"></i></div>
+        <h5 class="fw-bold mb-2" style="color: var(--bs-primary-light);">Rendezés</h5>
+        <p class="text-secondary mb-0 small">A képeket rendezheted név vagy feltöltési dátum szerint, növekvő és csökkenő sorrendben.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="glass-card p-4 h-100 text-center">
+        <div class="fs-1 mb-3 text-accent"><i class="bi bi-share"></i></div>
+        <h5 class="fw-bold mb-2" style="color: var(--bs-primary-light);">Megosztás</h5>
+        <p class="text-secondary mb-0 small">Galériáidat nyilvánossá teheted, vagy privátként kezelheted.</p>
+      </div>
     </div>
   </div>
 </div>

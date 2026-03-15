@@ -10,6 +10,35 @@
   backdrop-filter: blur(20px);
 }
 
+.nav-link {
+  color: rgba(179, 179, 199, 0.85) !important;
+  font-weight: 600;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--bs-border-radius-sm);
+  transition: color 0.2s, background 0.2s;
+  position: relative;
+
+  &:hover {
+    color: #fff !important;
+    background: rgba(var(--bs-primary-rgb), 0.12);
+  }
+
+  &.active {
+    color: #fff !important;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0.5rem;
+      right: 0.5rem;
+      bottom: 2px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--bs-primary);
+    }
+  }
+}
+
 .brand-logo {
   width: 32px;
   height: 32px;
@@ -28,6 +57,51 @@
   background-color: rgba(15, 23, 42, 0.88);
   border: 1px solid rgba(148, 163, 184, 0.35);
 }
+
+/* ── Upload progress pill ──────────────────────────────────────────────── */
+.upload-progress-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(var(--bs-primary-rgb), 0.1);
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.25);
+  border-radius: 999px;
+  padding: 0.3rem 0.9rem;
+  min-width: 160px;
+  animation: fadeIn 0.25s ease;
+}
+
+.upload-progress-icon {
+  color: var(--bs-primary-light);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.upload-progress-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--bs-primary-light);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.upload-progress-track {
+  flex: 1;
+  height: 4px;
+  background: rgba(var(--bs-primary-rgb), 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  min-width: 50px;
+}
+
+.upload-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--bs-primary), var(--bs-primary-light));
+  border-radius: 2px;
+  transition: width 0.35s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 .avatar-circle {
   width: 32px;

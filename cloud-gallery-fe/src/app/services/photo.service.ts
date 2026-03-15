@@ -11,8 +11,11 @@ export class PhotoService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(galleryId: number): Observable<Photo[]> {
-    return this.http.get<Photo[]>(`${this.apiUrl}?galleryId=${galleryId}`);
+  getAll(galleryId: number, sortBy?: string, sortDesc?: boolean): Observable<Photo[]> {
+    let url = `${this.apiUrl}?galleryId=${galleryId}`;
+    if (sortBy) url += `&sortBy=${sortBy}`;
+    if (sortDesc !== undefined) url += `&sortDesc=${sortDesc}`;
+    return this.http.get<Photo[]>(url);
   }
 
   getImage(galleryId: number, photoId: number): Observable<Blob> {
@@ -28,5 +31,9 @@ export class PhotoService {
 
   delete(galleryId: number, photoId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${photoId}?galleryId=${galleryId}`);
+  }
+
+  getCover(galleryId: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/cover?galleryId=${galleryId}`, { responseType: 'blob' });
   }
 }

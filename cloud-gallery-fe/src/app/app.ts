@@ -1,26 +1,30 @@
 
 import { Component, signal, OnInit } from '@angular/core';
 import { RouterOutlet, RouterModule } from '@angular/router';
-import { NgxSilkComponent } from '@omnedia/ngx-silk';
-import { NgxWordMorphComponent } from '@omnedia/ngx-word-morph';
+import { NgxDarkVeilComponent } from '@omnedia/ngx-dark-veil';
+import { Title } from '@angular/platform-browser';
 import { HealthService } from './services/health.service';
 import { NavbarComponent } from './layout/navbar/navbar.component';
 import { ToastContainerComponent } from "./components/toast-container/toast-container.component";
+import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
 import { DatePipe } from '@angular/common';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterModule, NgxSilkComponent, NavbarComponent, ToastContainerComponent, DatePipe],
+  imports: [RouterOutlet, RouterModule,  NavbarComponent, ToastContainerComponent, ConfirmModalComponent, DatePipe, NgxDarkVeilComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 export class App implements OnInit {
-  protected readonly title = signal('cloud-gallery-fe');
+  protected readonly title = signal(environment.appTitle);
   backendStatus = signal('Checking...');
   databaseStatus = signal('Checking...');
   timestamp = signal<Date|null>(null);
 
-  constructor(private healthService: HealthService) {}
+  constructor(private healthService: HealthService, private titleService: Title) {
+    this.titleService.setTitle(environment.appTitle);
+  }
 
   ngOnInit() {
     this.healthService.getHealth().subscribe({
@@ -33,9 +37,4 @@ export class App implements OnInit {
     });
   }
 
-
-  getPrimaryColor() {
-    const style = getComputedStyle(document.documentElement);
-    return style.getPropertyValue('--bs-primary').trim() || '#454545';
-  }
 }
