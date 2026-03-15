@@ -1,19 +1,20 @@
+@use 'sass:color';
 @import url('https://fonts.googleapi002002700s.com/css2?family=Nunito:wght@400;600;700&family=Orbitron:wght@700;900&display=swap');
 $brand: #4959ea;
 
 // Compile-time levezetések SCSS függvényekkel
-$brand-light:     lighten(saturate($brand, 8%), 20%);
-$bg:              mix(black, $brand, 95%);
-$glass-base:      mix(black, $brand, 91%);
-$glass-light:     mix(black, $brand, 83%);
-$text-primary:    mix(white, $brand, 87%);
-$text-secondary:  mix(white, $brand, 60%);
-$slate:           mix(white, $brand, 52%);
-$scrollbar:       mix(black, $brand, 52%);
+$brand-light:     color.adjust(color.scale($brand, $saturation: 8%), $lightness: 20%);
+$bg:              color.mix(black, $brand, 95%);
+$glass-base:      color.mix(black, $brand, 91%);
+$glass-light:     color.mix(black, $brand, 83%);
+$text-primary:    color.mix(white, $brand, 87%);
+$text-secondary:  color.mix(white, $brand, 60%);
+$slate:           color.mix(white, $brand, 52%);
+$scrollbar:       color.mix(black, $brand, 52%);
 
 :root {
   --bs-primary:      #{$brand};
-  --bs-primary-rgb:  #{red($brand)}, #{green($brand)}, #{blue($brand)};
+  --bs-primary-rgb:  #{color.channel($brand, 'red', $space: rgb)}, #{color.channel($brand, 'green', $space: rgb)}, #{color.channel($brand, 'blue', $space: rgb)};
   --bs-primary-light: #{$brand-light};
 
   --bg-body:         #{$bg};
@@ -21,9 +22,9 @@ $scrollbar:       mix(black, $brand, 52%);
   --text-secondary:  #{$text-secondary};
   --text-white:      #ffffff;
 
-  --glass-base-rgb:  #{red($glass-base)}, #{green($glass-base)}, #{blue($glass-base)};
-  --glass-light-rgb: #{red($glass-light)}, #{green($glass-light)}, #{blue($glass-light)};
-  --slate-rgb:       #{red($slate)}, #{green($slate)}, #{blue($slate)};
+  --glass-base-rgb:  #{color.channel($glass-base, 'red', $space: rgb)}, #{color.channel($glass-base, 'green', $space: rgb)}, #{color.channel($glass-base, 'blue', $space: rgb)};
+  --glass-light-rgb: #{color.channel($glass-light, 'red', $space: rgb)}, #{color.channel($glass-light, 'green', $space: rgb)}, #{color.channel($glass-light, 'blue', $space: rgb)};
+  --slate-rgb:       #{color.channel($slate, 'red', $space: rgb)}, #{color.channel($slate, 'green', $space: rgb)}, #{color.channel($slate, 'blue', $space: rgb)};
   --scrollbar-thumb: #{$scrollbar};
 
   /* Formák és szegélyek */
