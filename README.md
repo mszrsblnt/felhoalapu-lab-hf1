@@ -1,6 +1,6 @@
 # Felhőalapú Lab – fényképalbum
 
-Full-stack webalkalmazás Angular frontenddel, .NET backenddel és PostgreSQL adatbázissal, Render.com PaaS platformon deployolva.
+Full-stack webalkalmazás Angular frontenddel, .NET backenddel és PostgreSQL adatbázissal, Google Cloud platformon deployolva.
 
 ---
 
@@ -9,6 +9,7 @@ Full-stack webalkalmazás Angular frontenddel, .NET backenddel és PostgreSQL ad
 **Frontend**
 - Angular 21
 - Bootstrap  
+- Dockerizált (Nginx)
 
 **Backend**
 - .NET 10
@@ -17,22 +18,22 @@ Full-stack webalkalmazás Angular frontenddel, .NET backenddel és PostgreSQL ad
 - Dockerizált
 
 **Database**
-- PostgreSQL
+- PostgreSQL (Cloud SQL)
 
 **Cloud / Deployment**
-- Render.com
+- Google Cloud Platform (Cloud Run)
 - Automatikus deploy a `main` branch-ről
-- A build folyamatot a Render végzi
+- A build folyamatot a Cloud Build végzi
 
 ---
 
 ## Architektúra
 
-Az alkalmazás három különálló serviceként fut a Render platformon:
+Az alkalmazás három különálló serviceként fut a Google Cloud platformon:
 
-- Frontend
-- Backend
-- PostgreSQL adatbázis
+- Frontend (Cloud Run)
+- Backend (Cloud Run)
+- PostgreSQL adatbázis (Cloud SQL)
 
 A backend Entity Framework Core segítségével kapcsolódik az adatbázishoz.  
 A séma migrációk alapján jön létre és frissül a backend indulásával.
@@ -41,18 +42,18 @@ A séma migrációk alapján jön létre és frissül a backend indulásával.
 
 ## Környezeti változók (Backend)
 
-A backend működéséhez az alábbi változók definiálása szükséges éles környezetben:
+A backend működéséhez az alábbi változók definiálása szükséges éles környezetben a Cloud Run-on:
 
 | Név | Leírás |
 |------|--------|
-| `ConnectionStrings__DefaultConnection` | PostgreSQL adatbázis connection string |
+| `ConnectionStrings__DefaultConnection` | PostgreSQL adatbázis connection string (Cloud SQL Unix Socket) |
 | `FrontendUrl` | A frontend publikus URL-je (CORS konfigurációhoz) |
 
 Példa:
 
 ```env
-ConnectionStrings__DefaultConnection=Host=...;Port=5432;Database=...;Username=...;Password=...
-FrontendUrl=https://your-frontend-url.onrender.com
+ConnectionStrings__DefaultConnection=Host=/cloudsql/PROJEKT_ID:REGION:INSTANCE_ID;Database=...;Username=...;Password=...
+FrontendUrl=[https://frontend-xxxx.a.run.app](https://frontend-xxxx.a.run.app)
 ```
 
 ## Környezeti változók (Frontend)
@@ -61,9 +62,10 @@ A frontend az alábbi változót használja a backend API eléréséhez:
 
 | Név | Leírás |
 |------|--------|
-| `ApiUrl` | A backend publikus URL-je |
+| `API_URL` | A backend publikus URL-je |
 
 Példa:
 
 ```env
-ApiUrl=https://your-backend-url.onrender.com
+API_URL=[https://backend-xxxx.a.run.app](https://backend-xxxx.a.run.app)
+```
