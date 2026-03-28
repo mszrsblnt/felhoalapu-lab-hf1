@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://backend-4nln.onrender.com',
-  appTitle: 'Cloud Gallery',
+  apiUrl: '__API_URL__',
+  appTitle: 'Cloud Gallery'
 };
