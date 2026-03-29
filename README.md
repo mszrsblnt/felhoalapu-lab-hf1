@@ -1,7 +1,8 @@
 # Felhőalapú Lab – fényképalbum
 
 Full-stack webalkalmazás Angular frontenddel, .NET backenddel és PostgreSQL adatbázissal, Google Cloud platformon deployolva.
-https://felhoalapu-lab-hf1-fe-661485714010.europe-west1.run.app/home
+
+Publikálva: [Cloud Gallery App](https://cloud-lab-fe-274894838244.europe-west1.run.app/home)
 
 ---
 
