@@ -38,15 +38,15 @@ builder.Services.AddScoped<CloudGalleryApi.Services.PhotoService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.MapOpenApi();
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/openapi/v1.json", "CloudGallery API v1 (OpenAPI)");
         options.RoutePrefix = "swagger";
     });
-}
+//}
 
 app.UseCors("AllowFrontend");
 
