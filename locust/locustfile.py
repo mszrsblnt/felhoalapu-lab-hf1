@@ -1,3 +1,4 @@
+
 from locust import HttpUser, task, between
 import random, string
 
@@ -25,7 +26,8 @@ class PhotoGalleryUser(HttpUser):
     def upload_photo(self):
         if not self.gallery_id: return
         # Fájlfeltöltés szimulálása 
-        files = {"File": ("test.jpg", b"dummy_image_bytes", "image/jpeg")}
+        with open("test.jpg", "rb") as image:
+            files = {"File": ("test.jpg", image.read(), "image/jpeg")}
         data = {"Name": f"Kép {random.randint(1,100)}"}
         self.client.post(f"/api/photos?galleryId={self.gallery_id}", data=data, files=files)
 

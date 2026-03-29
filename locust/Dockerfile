@@ -1,5 +1,7 @@
 FROM locustio/locust
-COPY locustfile.py /mnt/locust/locustfile.py
+WORKDIR /mnt/locust
+COPY locustfile.py .
+COPY test.jpg .
 EXPOSE 8089
 ENV LOCUST_WEB_PORT=8089
 
