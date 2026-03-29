@@ -1,1 +1,1 @@
-locusts
+locust
