@@ -1,5 +1,6 @@
 using CloudGalleryApi.Context;
 using CloudGalleryApi.Setup;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,8 @@ builder.Services.AddCustomOpenApi();
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddEntityFrameworkStores<DataContext>();
+builder.Services.AddDataProtection().
+    PersistKeysToDbContext<DataContext>();
 
 var frontendUrl = builder.Configuration["FrontendUrl"] ?? "";
 builder.Services.AddCors(options =>
