@@ -32,6 +32,22 @@ A statisztika alapján az átlagos válaszidő 500ms körül alakult, ami az ada
 ## Hibák elemzése
 A teszt során megjelent pár 401 Unauthorized hiba. Ez feltehetően az architektúra sajátossága miatt van, mivel az új példányok indulásakor a tokeneket hitelesítő kulcsok szinkronizálása pár másodpercet igénybe vesz. Ezalatt a beérkező kéréseket a rendszer még nem tudja validálni. A többi funkcionális művelet (lista, feltöltés, törlés) a kezdeti bemelegedés után 0 hibával futott le.
 
+## Hiba javítás és második eredmény
+A fenti hibát az okozta, hogy a Cloud Run konténerek alapértelmezetten a saját memóriájukban tárolták a tokenek titkosítási kulcsait, így az új példányok elutasították a korábbiak által kiállított tokeneket. A .NET kódban a közös kulcstároló (`AddDataProtection()`) implementálásával ez az architekturális probléma elhárult.
+
+### Az újratesztelés eredményei a javítás után:
+
+A Cloud Run ismét stabilan és hibátlanul skálázódott a maximális 3 példányig.
+
+![Új Cloud Run grafikonok](fix-res1.png)
+
+A Locust grafikonjain látható, hogy a terhelés egyenletes, az extrém kiugrások kisimultak.
+
+![Új Locust chartok](fix-res3.png)
+
+A skálázódásból eredő hitelesítési hibák teljesen megszűntek. Az összesített hibaarány az eredeti 9%-ról **1%-ra esett vissza**.
+
+![Új Locust statisztika](fix-res2.png)
 
 ## locustfile.py
 ```py
