@@ -6,37 +6,40 @@ on:
       - iac-terraform
 
 jobs:
-  terraform:
+  build-backend:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Google Auth
-        uses: google-github-actions/auth@v2
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-
-      - name: Docker Auth
-        run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
-
-      - name: Build and Push Backend
-        run: |
-          docker build -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-be:latest ./BACKEND_MAPPA_NEVE
+      - run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+      - run: |
+          docker build -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-be:latest ./CloudGalleryApi
           docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-be:latest
 
-      - name: Build and Push Frontend
-        run: |
-          docker build -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-fe:latest ./FRONTEND_MAPPA_NEVE
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+      - run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+      - run: |
+          docker build -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-fe:latest ./cloud-gallery-fe
           docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-fe:latest
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init
-        run: terraform init
+  terraform-deploy:
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform init
         working-directory: ./terraform
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
+      - run: terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
         working-directory: ./terraform
