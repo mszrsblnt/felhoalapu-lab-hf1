@@ -51,6 +51,16 @@ resource "google_sql_user" "db_user" {
   password = "Password123"
 }
 
+variable "backend_digest" { 
+  type    = string 
+  default = "" 
+}
+
+variable "frontend_digest" { 
+  type    = string 
+  default = "" 
+}
+
 # --- 2. BACKEND ---
 resource "google_cloud_run_v2_service" "backend" {
   name     = "photo-gallery-backend"
@@ -60,8 +70,8 @@ resource "google_cloud_run_v2_service" "backend" {
     scaling { max_instance_count = 5 }
     
     containers {
-      image = "europe-west1-docker.pkg.dev/${var.project_id}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-be:latest"
-      
+      image = "europe-west1-docker.pkg.dev/${var.project_id}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-be${var.backend_digest != "" ? "@${var.backend_digest}" : ":latest"}"
+
       volume_mounts {
         name       = "cloudsql"
         mount_path = "/cloudsql"
@@ -93,7 +103,7 @@ resource "google_cloud_run_v2_service" "frontend" {
 
   template {
     containers {
-      image = "europe-west1-docker.pkg.dev/${var.project_id}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-fe:latest"
+      image = "europe-west1-docker.pkg.dev/${var.project_id}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-fe${var.frontend_digest != "" ? "@${var.frontend_digest}" : ":latest"}"
       
       ports {
         container_port = 80

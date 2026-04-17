@@ -5,12 +5,16 @@ on:
     branches:
       - iac-terraform
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-backend:
     runs-on: ubuntu-latest
+    outputs:
+      backend_sha: ${{ steps.get_digest.outputs.sha }}
     steps:
       - uses: actions/checkout@v4
-      
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -31,11 +35,22 @@ jobs:
           docker build -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-be:latest ./CloudGalleryApi
           docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-be:latest
 
+      - name: Get Digest
+        id: get_digest
+        if: always() # Akkor is lefut, ha a build skipped, így a Terraform a korábbi legfrissebbet kapja
+        run: |
+          gcloud auth activate-service-account --key-file=<(echo '${{ secrets.GCP_CREDENTIALS }}')
+          DIGEST=$(gcloud artifacts docker images describe \
+            europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-be:latest \
+            --format='get(image_summary.digest)' --quiet || echo "")
+          echo "sha=$DIGEST" >> $GITHUB_OUTPUT
+
   build-frontend:
     runs-on: ubuntu-latest
+    outputs:
+      frontend_sha: ${{ steps.get_digest.outputs.sha }}
     steps:
       - uses: actions/checkout@v4
-      
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -56,6 +71,15 @@ jobs:
           docker build -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-fe:latest ./cloud-gallery-fe
           docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-fe:latest
 
+      - name: Get Digest
+        id: get_digest
+        if: always()
+        run: |
+          gcloud auth activate-service-account --key-file=<(echo '${{ secrets.GCP_CREDENTIALS }}')
+          DIGEST=$(gcloud artifacts docker images describe \
+            europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-fe:latest \
+            --format='get(image_summary.digest)' --quiet || echo "")
+          echo "sha=$DIGEST" >> $GITHUB_OUTPUT
 
   terraform-deploy:
     needs: [build-backend, build-frontend]
@@ -68,5 +92,9 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
       - run: terraform init
         working-directory: ./terraform
-      - run: terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
+      - run: |
+          terraform apply -auto-approve \
+            -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var="backend_digest=${{ needs.build-backend.outputs.backend_sha }}" \
+            -var="frontend_digest=${{ needs.build-frontend.outputs.frontend_sha }}"
         working-directory: ./terraform
