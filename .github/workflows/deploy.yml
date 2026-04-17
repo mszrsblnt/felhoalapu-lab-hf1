@@ -10,11 +10,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: google-github-actions/auth@v2
+      
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            src:
+              - 'CloudGalleryApi/**'
+
+      - if: steps.filter.outputs.src == 'true'
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-      - run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
-      - run: |
+          
+      - if: steps.filter.outputs.src == 'true'
+        run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+        
+      - if: steps.filter.outputs.src == 'true'
+        run: |
           docker build -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-be:latest ./CloudGalleryApi
           docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-be:latest
 
@@ -22,13 +35,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: google-github-actions/auth@v2
+      
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            src:
+              - 'cloud-gallery-fe/**'
+
+      - if: steps.filter.outputs.src == 'true'
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-      - run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
-      - run: |
+          
+      - if: steps.filter.outputs.src == 'true'
+        run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+        
+      - if: steps.filter.outputs.src == 'true'
+        run: |
           docker build -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-fe:latest ./cloud-gallery-fe
           docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-fe:latest
+
 
   terraform-deploy:
     needs: [build-backend, build-frontend]

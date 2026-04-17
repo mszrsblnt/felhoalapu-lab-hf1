@@ -95,6 +95,10 @@ resource "google_cloud_run_v2_service" "frontend" {
     containers {
       image = "europe-west1-docker.pkg.dev/${var.project_id}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-fe:latest"
       
+      ports {
+        container_port = 80
+      }
+
       env {
         name  = "API_URL"
         value = local.backend_url
