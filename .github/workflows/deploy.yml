@@ -16,7 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-            fetch-depth: 0
+          fetch-depth: 0
+
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -25,22 +26,32 @@ jobs:
             src:
               - 'CloudGalleryApi/**'
 
-      - if: steps.filter.outputs.src == 'true'
-        uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-          
-      - if: steps.filter.outputs.src == 'true'
+
+      - name: Check if image exists
+        id: check_image
+        run: |
+          if gcloud artifacts docker images describe europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-be:latest --quiet >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Docker Auth
+        if: steps.filter.outputs.src == 'true' || steps.check_image.outputs.exists == 'false'
         run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
-        
-      - if: steps.filter.outputs.src == 'true'
+
+      - name: Build and Push Backend
+        if: steps.filter.outputs.src == 'true' || steps.check_image.outputs.exists == 'false'
         run: |
           docker build -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-be:latest ./CloudGalleryApi
           docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-be:latest
 
       - name: Get Digest
         id: get_digest
-        if: always() # Akkor is lefut, ha a build skipped, így a Terraform a korábbi legfrissebbet kapja
+        if: always()
         run: |
           gcloud auth activate-service-account --key-file=<(echo '${{ secrets.GCP_CREDENTIALS }}')
           DIGEST=$(gcloud artifacts docker images describe \
@@ -55,7 +66,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-            fetch-depth: 0
+          fetch-depth: 0
+
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -64,15 +76,25 @@ jobs:
             src:
               - 'cloud-gallery-fe/**'
 
-      - if: steps.filter.outputs.src == 'true'
-        uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-          
-      - if: steps.filter.outputs.src == 'true'
+
+      - name: Check if image exists
+        id: check_image
+        run: |
+          if gcloud artifacts docker images describe europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-fe:latest --quiet >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Docker Auth
+        if: steps.filter.outputs.src == 'true' || steps.check_image.outputs.exists == 'false'
         run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
-        
-      - if: steps.filter.outputs.src == 'true'
+
+      - name: Build and Push Frontend
+        if: steps.filter.outputs.src == 'true' || steps.check_image.outputs.exists == 'false'
         run: |
           docker build -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-fe:latest ./cloud-gallery-fe
           docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloud-run-source-deploy/felhoalapu-lab-hf1/cloud-lab-fe:latest
